@@ -2,8 +2,7 @@ let matrix;
 
 
 function setup(){
-    createCanvas(window.innerWidth, window.innerWidth);
-
+    createCanvas(window.innerWidth, window.innerHeight);
     matrix = new Matrix(30, 247);
 }
 
