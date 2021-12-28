@@ -3,7 +3,8 @@ let matrix;
 
 function setup(){
     createCanvas(window.innerWidth, window.innerHeight);
-    matrix = new Matrix(30, 247);
+    matrix = new Matrix(8, 29);
+    // matrix = new Matrix(30, 430);
 }
 
 function draw(){

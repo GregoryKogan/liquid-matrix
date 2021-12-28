@@ -1,21 +1,28 @@
 class Matrix{
-    constructor(size, fill, ticks=1){
+    constructor(size, fill, ticks=3){
         this.angle = 0
         this.updateCounter = 0
         this.ticks = ticks
         this.noiseOffset = 0
-        this.rotationSpeed = 0.005
+        this.rotationSpeed = 0.007
         this.size = size
         this.width = Math.min(window.innerWidth, window.innerHeight) / 5 * 3
         this.data = []
-        let fillCounter = 0;
         for (let i = 0; i < size; ++i){
             let line = [];
             for (let j = 0; j < size; ++j){
-                line.push(fillCounter < fill)
-                fillCounter++;
+                line.push(0)
             }
             this.data.push(line)
+        }
+        let fillCounter = 0
+        while (fillCounter < fill){
+            const i = Math.floor(random(0, this.size))
+            const j = Math.floor(random(0, this.size))
+            if (!this.data[i][j]){
+                this.data[i][j] = 1
+                fillCounter++
+            }
         }
     }
 
@@ -33,25 +40,17 @@ class Matrix{
         const gravityV = -Math.sin(this.angle - Math.PI / 2)
         const gravityH = Math.cos(this.angle - Math.PI / 2)
 
-        let buffer = []
-        for (let i = 0; i < this.size; ++i){
-            let line = [];
-            for (let j = 0; j < this.size; ++j)
-                line.push(false)
-            buffer.push(line)
-        }
-
         for (let i = 0; i < this.size; ++i){
             for (let j = 0; j < this.size; ++j){
-                if (this.data[i][j]){
+                if (this.data[i][j] && this.data[i][j] < this.updateCounter){
                     let possibleDirs = [true, true, true, true]
-                    if (i == 0 || this.data[i - 1][j] || buffer[i - 1][j])
+                    if (i == 0 || this.data[i - 1][j])
                         possibleDirs[0] = false
-                    if (j == 0 || this.data[i][j - 1] || buffer[i][j - 1])
+                    if (j == 0 || this.data[i][j - 1])
                         possibleDirs[3] = false
-                    if (i == this.size - 1 || this.data[i + 1][j] || buffer[i + 1][j])
+                    if (i == this.size - 1 || this.data[i + 1][j])
                         possibleDirs[2] = false
-                    if (j == this.size - 1 || this.data[i][j + 1] || buffer[i][j + 1])
+                    if (j == this.size - 1 || this.data[i][j + 1])
                         possibleDirs[1] = false
                     
                     const Vdir = Math.sign(gravityV)
@@ -91,12 +90,11 @@ class Matrix{
                                 curDir = [0, 1]
                         }
                     }
-                    
-                    buffer[i + curDir[0]][j + curDir[1]] = true
+                    this.data[i][j] = 0
+                    this.data[i + curDir[0]][j + curDir[1]] = this.updateCounter
                 }
             }
         }
-        this.data = buffer
     }
 
     render(){
@@ -107,7 +105,7 @@ class Matrix{
         stroke("#b7b5b6")
         translate(centerX, centerY)
         rotate(this.angle)
-        rect(-this.width / 2, -this.width / 2, this.width, this.width, 10);
+        rect(-this.width / 2 - 5, -this.width / 2 - 5, this.width + 10, this.width + 10, 10);
         for (let i = 0; i < this.size; ++i){
             for (let j = 0; j < this.size; ++j){
                 const cellWidth = this.width / this.size
